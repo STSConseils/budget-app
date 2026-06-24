@@ -8,10 +8,27 @@
 migrate(
   (app) => {
     // ---------------------------------------------------------------
-    // 0) Référence à la collection auth "users"
+    // 0) Collection auth "users" — créée ici si absente
     // ---------------------------------------------------------------
-    const usersCol = app.findCollectionByNameOrId("users");
-    const usersId = usersCol.id;
+    let usersId;
+    try {
+      usersId = app.findCollectionByNameOrId("users").id;
+    } catch (e) {
+      const users = new Collection({
+        type: "auth",
+        name: "users",
+        listRule:   '@request.auth.id != ""',
+        viewRule:   '@request.auth.id != ""',
+        createRule: "",
+        updateRule: "id = @request.auth.id",
+        deleteRule: "id = @request.auth.id",
+        fields: [
+          { name: "nom", type: "text" },
+        ],
+      });
+      app.save(users);
+      usersId = app.findCollectionByNameOrId("users").id;
+    }
 
     // ---------------------------------------------------------------
     // 1) households — un foyer regroupe plusieurs utilisateurs
@@ -46,8 +63,6 @@ migrate(
 
     // ---------------------------------------------------------------
     // 2) categories — type = "depense" ou "revenu"
-    //    Une catégorie générale (Alimentation, Salaire, etc.) que
-    //    l'utilisateur crée depuis l'app.
     // ---------------------------------------------------------------
     const categories = new Collection({
       type: "base",
@@ -85,9 +100,7 @@ migrate(
     const categoriesId = app.findCollectionByNameOrId("categories").id;
 
     // ---------------------------------------------------------------
-    // 3) recurrents — définitions récurrentes, DÉPENSES ET REVENUS.
-    //    Les paiements/encaissements effectifs sont enregistrés dans
-    //    transactions, via recurrent_source.
+    // 3) recurrents — définitions récurrentes (dépenses ET revenus)
     // ---------------------------------------------------------------
     const recurrents = new Collection({
       type: "base",
@@ -108,8 +121,6 @@ migrate(
         },
         { name: "libelle", type: "text", required: true },
         { name: "montant", type: "number", required: true },
-        // Sens du flux : sortie d'argent (dépense) ou entrée (revenu).
-        // Doit être cohérent avec le type de la catégorie liée.
         {
           name: "sens",
           type: "select",
@@ -124,7 +135,6 @@ migrate(
           maxSelect: 1,
           values: ["mensuel", "trimestriel", "annuel"],
         },
-        // Jour du mois où l'échéance tombe (1-31).
         { name: "jour_du_mois", type: "number", required: true, min: 1, max: 31 },
         {
           name: "categorie",
@@ -134,9 +144,6 @@ migrate(
           collectionId: categoriesId,
           cascadeDelete: false,
         },
-        // Personne concernée :
-        //   - pour une dépense : qui paie par défaut
-        //   - pour un revenu   : qui perçoit
         {
           name: "personne",
           type: "relation",
@@ -154,9 +161,7 @@ migrate(
     const recurrentsId = app.findCollectionByNameOrId("recurrents").id;
 
     // ---------------------------------------------------------------
-    // 4) transactions — dépenses ET revenus réalisés.
-    //    Le sens (entrée/sortie) se déduit de la catégorie liée.
-    //    Trace des récurrents via recurrent_source.
+    // 4) transactions — dépenses ET revenus réalisés
     // ---------------------------------------------------------------
     const transactions = new Collection({
       type: "base",
@@ -238,9 +243,7 @@ migrate(
     app.save(epargne);
 
     // ---------------------------------------------------------------
-    // 6) perso_ledger — STRICTEMENT PRIVÉ au propriétaire.
-    //    Pas de champ household : ces données ne sont jamais
-    //    partagées, ni en temps réel ni en statique.
+    // 6) perso_ledger — STRICTEMENT PRIVÉ au propriétaire
     // ---------------------------------------------------------------
     const persoLedger = new Collection({
       type: "base",
@@ -278,7 +281,7 @@ migrate(
   },
 
   // -----------------------------------------------------------------
-  // DOWN : suppression dans l'ordre inverse pour respecter les FKs.
+  // DOWN : suppression dans l'ordre inverse
   // -----------------------------------------------------------------
   (app) => {
     const names = [
