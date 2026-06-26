@@ -1,10 +1,27 @@
-String? fiscalPosteLabel(String nom) {
-  final n = nom.toLowerCase();
-  if (n.contains('hypoth')) return 'Intérêts hypothécaires';
-  if (n.contains('lamal') || n.contains('assurance maladie') || n.contains('caisse maladie')) return 'LAMal';
-  if (n.contains('crèche') || n.contains('creche') || n.contains('garde') || n.contains('parascolaire')) return 'Frais de garde';
-  if (n.contains('pilier') || n.contains('prévoyance')) return '3e pilier';
-  if (n.contains('médic') || n.contains('medic') || n.contains('franchis') || n.contains('dentiste')) return 'Frais médicaux';
-  if (n.contains('entretien') || n.contains('rénovation')) return 'Entretien immobilier';
-  return null;
-}
+const fiscalCodes = [
+  'non_deductible',
+  'entretien_immobilier',
+  'garde_enfants',
+  'frais_medicaux',
+  'assurance_maladie',
+  'dons',
+  'formation',
+  '3e_pilier',
+  'frais_professionnels',
+  'interets_dette',
+  'pension_alimentaire',
+];
+
+String? fiscalPosteLabel(String code) => switch (code) {
+      'entretien_immobilier' => 'Entretien immobilier',
+      'garde_enfants' => 'Frais de garde',
+      'frais_medicaux' => 'Frais médicaux',
+      'assurance_maladie' => 'LAMal / Assurance',
+      'dons' => 'Dons',
+      'formation' => 'Formation',
+      '3e_pilier' => '3e pilier',
+      'frais_professionnels' => 'Frais professionnels',
+      'interets_dette' => 'Intérêts hypothécaires',
+      'pension_alimentaire' => 'Pension alimentaire',
+      _ => null,
+    };

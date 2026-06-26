@@ -11,6 +11,7 @@ class TransactionModel {
     required this.auteurId,
     this.note,
     this.recurrentSourceId,
+    this.categorieFiscale,
   });
 
   final String id;
@@ -21,10 +22,12 @@ class TransactionModel {
   final String auteurId;
   final String? note;
   final String? recurrentSourceId;
+  final String? categorieFiscale;
 
   factory TransactionModel.fromRecord(RecordModel r) {
     final rawNote = r.get<String>('note', '');
     final rawSource = r.get<String>('recurrent_source', '');
+    final rawFiscale = r.get<String>('categorie_fiscale', '');
     return TransactionModel(
       id: r.id,
       household: r.get<String>('household', ''),
@@ -34,6 +37,7 @@ class TransactionModel {
       auteurId: r.get<String>('auteur', ''),
       note: rawNote.isEmpty ? null : rawNote,
       recurrentSourceId: rawSource.isEmpty ? null : rawSource,
+      categorieFiscale: rawFiscale.isEmpty ? null : rawFiscale,
     );
   }
 
@@ -44,6 +48,7 @@ class TransactionModel {
         'categorie': categorieId,
         'auteur': auteurId,
         'note': note ?? '',
+        'categorie_fiscale': categorieFiscale ?? '',
         if (recurrentSourceId != null) 'recurrent_source': recurrentSourceId,
       };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:budget_app/core/format.dart';
 import 'package:budget_app/core/theme.dart';
 import 'package:budget_app/repositories/providers.dart';
@@ -21,6 +22,12 @@ class DashboardScreen extends ConsumerWidget {
         title: Text('BUDGET', style: AppTextStyles.sectionTitle),
         actions: [
           IconButton(
+            icon: const Icon(Icons.tune, size: 20),
+            color: AppColors.muted,
+            tooltip: 'Catégories',
+            onPressed: () => context.push('/categories'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout, size: 20),
             color: AppColors.muted,
             tooltip: 'Déconnexion',
@@ -31,6 +38,13 @@ class DashboardScreen extends ConsumerWidget {
             },
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.background,
+        elevation: 0,
+        onPressed: () => context.push('/transactions/new'),
+        child: const Icon(Icons.add),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -191,7 +205,12 @@ class _VentilationSection extends ConsumerWidget {
         else
           for (int i = 0; i < buckets.length; i++) ...[
             if (i > 0) const SizedBox(height: 16),
-            _CategoryBar(bucket: buckets[i]),
+            _CategoryBar(
+              bucket: buckets[i],
+              onTap: () => context.push(
+                '/categories/${buckets[i].category.id}',
+              ),
+            ),
           ],
       ],
     );
@@ -199,9 +218,10 @@ class _VentilationSection extends ConsumerWidget {
 }
 
 class _CategoryBar extends StatelessWidget {
-  const _CategoryBar({required this.bucket});
+  const _CategoryBar({required this.bucket, required this.onTap});
 
   final CategorieBucket bucket;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -210,45 +230,56 @@ class _CategoryBar extends StatelessWidget {
     final isOver = budget > 0 && realise > budget;
     final ratio = budget > 0 ? (realise / budget).clamp(0.0, 1.0) : 0.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                bucket.category.nom,
-                style: AppTextStyles.body,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Text(
-              '${formatCHF(realise)} / ${formatCHF(budget)} CHF',
-              style: AppTextStyles.body.copyWith(
-                color: isOver ? AppColors.accent : AppColors.muted,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        SizedBox(
-          height: 4,
-          child: LayoutBuilder(
-            builder: (context, constraints) => Stack(
-              children: [
-                Container(width: constraints.maxWidth, color: AppColors.barTrack),
-                Container(
-                  width: constraints.maxWidth * ratio,
-                  color: isOver ? AppColors.accent : AppColors.ink,
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  bucket.category.nom,
+                  style: AppTextStyles.body,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${formatCHF(realise)} / ${formatCHF(budget)} CHF',
+                style: AppTextStyles.body.copyWith(
+                  color: isOver ? AppColors.accent : AppColors.muted,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.chevron_right,
+                size: 16,
+                color: AppColors.muted,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 4,
+            child: LayoutBuilder(
+              builder: (context, constraints) => Stack(
+                children: [
+                  Container(
+                    width: constraints.maxWidth,
+                    color: AppColors.barTrack,
+                  ),
+                  Container(
+                    width: constraints.maxWidth * ratio,
+                    color: isOver ? AppColors.accent : AppColors.ink,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

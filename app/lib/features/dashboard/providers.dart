@@ -115,20 +115,16 @@ final ventilationParCategorieProvider = Provider<List<CategorieBucket>>((ref) {
 
 final fiscaleAggregatProvider = Provider<List<FiscaleAggregat>>((ref) {
   final txs = ref.watch(transactionsAnneeProvider).valueOrNull ?? [];
-  final cats = ref.watch(categoriesStreamProvider).valueOrNull ?? [];
-  final catMap = {for (final c in cats) c.id: c};
 
   final totals = <String, double>{};
   for (final t in txs) {
-    final cat = catMap[t.categorieId];
-    if (cat == null) continue;
-    final poste = fiscalPosteLabel(cat.nom);
-    if (poste == null) continue;
-    totals[poste] = (totals[poste] ?? 0) + t.montant;
+    final code = t.categorieFiscale;
+    if (code == null || code == 'non_deductible') continue;
+    totals[code] = (totals[code] ?? 0) + t.montant;
   }
 
   return totals.entries
-      .map((e) => FiscaleAggregat(poste: e.key, total: e.value))
+      .map((e) => FiscaleAggregat(poste: fiscalPosteLabel(e.key) ?? e.key, total: e.value))
       .toList()
     ..sort((a, b) => b.total.compareTo(a.total));
 });

@@ -25,6 +25,15 @@ class PersoLedgerRepository {
     return PersoEntry.fromRecord(record);
   }
 
+  Future<int> countByCategory(String catId) async {
+    final result = await pb.collection('perso_ledger').getList(
+      page: 1,
+      perPage: 1,
+      filter: 'categorie = "$catId"',
+    );
+    return result.totalItems;
+  }
+
   Future<void> delete(String id) =>
       pb.collection('perso_ledger').delete(id);
 

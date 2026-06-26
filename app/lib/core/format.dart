@@ -20,6 +20,17 @@ String formatCHF(num value, {bool withSign = false}) {
   return swiss;
 }
 
+/// Formats a raw amount string with Swiss apostrophe, preserving partial decimals.
+/// Examples: "1250" → "1'250", "1250." → "1'250.", "1250.5" → "1'250.5", "" → "0".
+String formatRawAmount(String raw) {
+  if (raw.isEmpty) return '0';
+  final dotIdx = raw.indexOf('.');
+  final intStr = dotIdx == -1 ? raw : raw.substring(0, dotIdx);
+  final decStr = dotIdx == -1 ? '' : raw.substring(dotIdx);
+  final intVal = int.tryParse(intStr.isEmpty ? '0' : intStr) ?? 0;
+  return _numberFormat.format(intVal).replaceAll(',', "'") + decStr;
+}
+
 /// Formats a date in short French: "24 juin" or "24 juin 26" for past years.
 String formatDateShortFr(DateTime d) {
   final now = DateTime.now();
@@ -28,6 +39,10 @@ String formatDateShortFr(DateTime d) {
   final shortYear = (d.year % 100).toString().padLeft(2, '0');
   return '${d.day} $month $shortYear';
 }
+
+/// Parses a hex color string (e.g. "#E23A1E") into a Flutter Color.
+Color hexColor(String hex) =>
+    Color(int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
 
 /// Renders a formatted amount with an attenuated "CHF" suffix.
 class AmountText extends StatelessWidget {

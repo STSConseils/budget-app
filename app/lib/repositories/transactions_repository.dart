@@ -49,6 +49,15 @@ class TransactionsRepository {
     return TransactionModel.fromRecord(record);
   }
 
+  Future<int> countByCategory(String catId) async {
+    final result = await pb.collection('transactions').getList(
+      page: 1,
+      perPage: 1,
+      filter: 'categorie = "$catId"',
+    );
+    return result.totalItems;
+  }
+
   Future<void> delete(String id) =>
       pb.collection('transactions').delete(id);
 

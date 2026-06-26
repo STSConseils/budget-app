@@ -19,6 +19,7 @@ class Category {
     this.couleur,
     this.icone,
     this.budgetMensuel,
+    this.categorieFiscaleDefault,
   });
 
   final String id;
@@ -28,11 +29,13 @@ class Category {
   final String? couleur;
   final String? icone;
   final double? budgetMensuel;
+  final String? categorieFiscaleDefault;
 
   factory Category.fromRecord(RecordModel r) {
     final rawBudget = r.data['budget_mensuel'];
     final rawCouleur = r.get<String>('couleur', '');
     final rawIcone = r.get<String>('icone', '');
+    final rawFiscalDef = r.get<String>('categorie_fiscale_default', '');
     return Category(
       id: r.id,
       household: r.get<String>('household', ''),
@@ -42,6 +45,8 @@ class Category {
       icone: rawIcone.isEmpty ? null : rawIcone,
       budgetMensuel:
           rawBudget == null ? null : (rawBudget as num).toDouble(),
+      categorieFiscaleDefault:
+          rawFiscalDef.isEmpty ? null : rawFiscalDef,
     );
   }
 
@@ -52,5 +57,6 @@ class Category {
         'couleur': couleur ?? '',
         'icone': icone ?? '',
         if (budgetMensuel != null) 'budget_mensuel': budgetMensuel,
+        'categorie_fiscale_default': categorieFiscaleDefault ?? '',
       };
 }

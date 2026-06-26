@@ -32,6 +32,15 @@ class RecurrentsRepository {
     return Recurrent.fromRecord(record);
   }
 
+  Future<int> countByCategory(String catId) async {
+    final result = await pb.collection('recurrents').getList(
+      page: 1,
+      perPage: 1,
+      filter: 'categorie = "$catId"',
+    );
+    return result.totalItems;
+  }
+
   Future<void> delete(String id) =>
       pb.collection('recurrents').delete(id);
 
