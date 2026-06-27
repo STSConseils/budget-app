@@ -7,6 +7,11 @@ import 'package:budget_app/features/auth/login_screen.dart';
 import 'package:budget_app/features/categories/categories_list_screen.dart';
 import 'package:budget_app/features/categories/category_form_screen.dart';
 import 'package:budget_app/features/dashboard/dashboard_screen.dart';
+import 'package:budget_app/features/aide/aide_screen.dart';
+import 'package:budget_app/features/epargne/epargne_screen.dart';
+import 'package:budget_app/features/perso/perso_screen.dart';
+import 'package:budget_app/features/recurrents/recurrents_list_screen.dart';
+import 'package:budget_app/features/recurrents/recurrent_form_screen.dart';
 import 'package:budget_app/features/transactions/category_detail_screen.dart';
 import 'package:budget_app/features/transactions/transaction_form_screen.dart';
 
@@ -66,6 +71,32 @@ final appRouter = GoRouter(
       path: '/categories/:id',
       builder: (context, state) => CategoryDetailScreen(
         categoryId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
+      path: '/aide',
+      builder: (context, state) => const AideScreen(),
+    ),
+    GoRoute(
+      path: '/epargne',
+      builder: (context, state) => const EpargneScreen(),
+    ),
+    GoRoute(
+      path: '/perso',
+      builder: (context, state) => const PersoScreen(),
+    ),
+    GoRoute(
+      path: '/recurrents',
+      builder: (context, state) => const RecurrentsListScreen(),
+    ),
+    GoRoute(
+      path: '/recurrents/new',
+      builder: (context, state) => const RecurrentFormScreen(),
+    ),
+    GoRoute(
+      path: '/recurrents/:id/edit',
+      builder: (context, state) => RecurrentFormScreen(
+        recurrentId: state.pathParameters['id']!,
       ),
     ),
   ],

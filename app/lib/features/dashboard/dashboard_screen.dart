@@ -5,6 +5,7 @@ import 'package:budget_app/core/format.dart';
 import 'package:budget_app/core/theme.dart';
 import 'package:budget_app/repositories/providers.dart';
 import 'package:budget_app/features/dashboard/providers.dart';
+import 'package:budget_app/features/epargne/providers.dart';
 
 const _moisFr = [
   '',
@@ -21,6 +22,24 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text('BUDGET', style: AppTextStyles.sectionTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline, size: 20),
+            color: AppColors.muted,
+            tooltip: 'Aide',
+            onPressed: () => context.push('/aide'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.lock_outline, size: 20),
+            color: AppColors.muted,
+            tooltip: 'Perso (privé)',
+            onPressed: () => context.push('/perso'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.replay, size: 20),
+            color: AppColors.muted,
+            tooltip: 'Récurrents',
+            onPressed: () => context.push('/recurrents'),
+          ),
           IconButton(
             icon: const Icon(Icons.tune, size: 20),
             color: AppColors.muted,
@@ -105,6 +124,7 @@ class _PositionHero extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final position = ref.watch(positionProjeteeProvider);
+    final estimee = ref.watch(epargneEstimeeProvider);
     final isNegative = position < 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,6 +138,26 @@ class _PositionHero extends ConsumerWidget {
             color: isNegative ? AppColors.accent : AppColors.ink,
           ),
         ),
+        if (estimee != null) ...[
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => context.push('/epargne'),
+            child: Row(
+              children: [
+                Text(
+                  'Épargne ',
+                  style: AppTextStyles.body.copyWith(color: AppColors.muted),
+                ),
+                AmountText(
+                  estimee,
+                  style: AppTextStyles.body.copyWith(color: AppColors.muted),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward, size: 14, color: AppColors.muted),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

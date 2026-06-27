@@ -136,6 +136,31 @@ final recurrentsStreamProvider =
   yield* controller.stream;
 });
 
+/// Tous les récurrents (actifs + inactifs) — pour le module gestion récurrents.
+/// Le dashboard utilise [recurrentsStreamProvider] (actifs seulement).
+final recurrentsAllStreamProvider =
+    StreamProvider<List<Recurrent>>((ref) async* {
+  final household = await ref.watch(currentHouseholdProvider.future);
+  if (household == null) {
+    yield [];
+    return;
+  }
+  final repo = ref.read(recurrentsRepoProvider);
+
+  yield await repo.list(household.id);
+
+  final controller = StreamController<List<Recurrent>>();
+  final unsub = await repo.subscribe(household.id, () async {
+    controller.add(await repo.list(household.id));
+  });
+  ref.onDispose(() {
+    unsub();
+    controller.close();
+  });
+
+  yield* controller.stream;
+});
+
 final epargneLatestProvider = StreamProvider<Epargne?>((ref) async* {
   final household = await ref.watch(currentHouseholdProvider.future);
   if (household == null) {
@@ -193,7 +218,7 @@ final persoLedgerStreamProvider =
   yield await repo.listForUser(user.id);
 
   final controller = StreamController<List<PersoEntry>>();
-  final unsub = await repo.subscribe(() async {
+  final unsub = await repo.subscribe(user.id, () async {
     controller.add(await repo.listForUser(user.id));
   });
   ref.onDispose(() {

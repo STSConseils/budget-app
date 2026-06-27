@@ -17,14 +17,14 @@ class EpargneRepository {
 
   Future<List<Epargne>> history(
     String householdId, {
-    int limit = 24,
+    int limit = 36,
   }) async {
     final result = await pb.collection('epargne').getList(
           page: 1,
           perPage: limit,
           skipTotal: true,
           filter: 'household = "$householdId"',
-          sort: '-date',
+          sort: 'date', // ASC pour la courbe
         );
     return result.items.map(Epargne.fromRecord).toList();
   }

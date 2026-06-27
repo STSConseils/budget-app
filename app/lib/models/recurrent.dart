@@ -80,6 +80,6 @@ class Recurrent {
         'jour_du_mois': jourDuMois,
         'categorie': categorieId,
         'actif': actif,
-        if (personneId != null) 'personne': personneId,
+        'personne': personneId ?? '',
       };
 }

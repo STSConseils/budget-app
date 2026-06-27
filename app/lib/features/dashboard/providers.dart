@@ -3,6 +3,7 @@ import 'package:budget_app/models/category.dart';
 import 'package:budget_app/models/recurrent.dart';
 import 'package:budget_app/repositories/providers.dart';
 import 'package:budget_app/features/dashboard/fiscal_labels.dart';
+import 'package:budget_app/features/epargne/providers.dart';
 
 class CategorieBucket {
   const CategorieBucket({required this.category, required this.realise});
@@ -74,17 +75,11 @@ final prevuRevenusProvider = Provider<double>((ref) {
       .fold(0.0, (sum, r) => sum + r.montant);
 });
 
-final epargneActuelleProvider = Provider<double>((ref) {
-  return ref.watch(epargneLatestProvider).valueOrNull?.solde ?? 0;
-});
-
 final positionProjeteeProvider = Provider<double>((ref) {
-  final epargne = ref.watch(epargneActuelleProvider);
-  final revenusRealises = ref.watch(realiseRevenusProvider);
+  final estimee = ref.watch(epargneEstimeeProvider) ?? 0.0;
   final revenusPrevus = ref.watch(prevuRevenusProvider);
-  final depensesRealisees = ref.watch(realiseDepensesProvider);
   final depensesPrevues = ref.watch(prevuDepensesProvider);
-  return epargne + revenusRealises + revenusPrevus - depensesRealisees - depensesPrevues;
+  return estimee + revenusPrevus - depensesPrevues;
 });
 
 final positionStatusProvider = Provider<PositionStatus>((ref) {

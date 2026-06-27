@@ -21,6 +21,18 @@ class TransactionsRepository {
     return records.map(TransactionModel.fromRecord).toList();
   }
 
+  Future<List<TransactionModel>> listSince(
+    String householdId,
+    DateTime since,
+  ) async {
+    final records = await pb.collection('transactions').getFullList(
+          filter: 'household = "$householdId"'
+              ' && date >= "${_dateFmt(since)}"',
+          sort: 'date',
+        );
+    return records.map(TransactionModel.fromRecord).toList();
+  }
+
   Future<List<TransactionModel>> listForYear(
     String householdId,
     int year,
