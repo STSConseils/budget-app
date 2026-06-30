@@ -125,7 +125,7 @@ class _NumericKeypadState extends State<NumericKeypad> {
                   borderRadius: BorderRadius.zero,
                 ),
               ),
-              child: Text('Valider', style: AppTextStyles.bodyStrong),
+              child: Text('Valider', style: AppTextStyles.bodyStrong.copyWith(color: Colors.white),),
             ),
           ),
         ],

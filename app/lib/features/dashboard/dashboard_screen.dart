@@ -157,8 +157,22 @@ class _PositionHero extends ConsumerWidget {
               ],
             ),
           ),
+        ] else ...[
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => context.push('/epargne'),
+            child: Row(
+              children: [
+                Text(
+                  'Renseigner mon épargne',
+                  style: AppTextStyles.body.copyWith(color: AppColors.accent),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward, size: 14, color: AppColors.accent),
+              ],
+            ),
+          ),
         ],
-      ],
     );
   }
 }
