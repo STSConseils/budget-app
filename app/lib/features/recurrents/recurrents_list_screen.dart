@@ -364,13 +364,13 @@ class _RecurrentTile extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
-                      color: const Color.fromARGB(255, 244, 235, 235),
+                      color: const Color.fromARGB(255, 241, 5, 5),
                       child: Text(
                         'Confirmer payé',
                         style: AppTextStyles.body.copyWith(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.background,
+                          color: const Color.fromARGB(255, 244, 243, 239),
                         ),
                       ),
                     ),

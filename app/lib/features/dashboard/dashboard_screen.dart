@@ -173,6 +173,7 @@ class _PositionHero extends ConsumerWidget {
             ),
           ),
         ],
+      ],
     );
   }
 }
