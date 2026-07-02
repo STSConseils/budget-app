@@ -71,12 +71,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
-                    child: Text('FLOOZEE', style: AppTextStyles.hero),
+                    child: Image.network(
+                      'icons/Icon-192.png',
+                      width: 96,
+                      height: 96,
+                      filterQuality: FilterQuality.high,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                  child: Text('FLOOZEE', style: AppTextStyles.hero),
                   ),
                   const SizedBox(height: 4),
                   Center(
                     child: Text(
-                      'BUDGET FAMILIAL',
+                      'LA FIN DU MOIS EN VERT',
                       style: AppTextStyles.sectionTitle,
                     ),
                   ),
