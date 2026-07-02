@@ -54,6 +54,12 @@ final appRouter = GoRouter(
       builder: (context, state) => const TransactionFormScreen(),
     ),
     GoRoute(
+      path: '/transactions/:id/edit',
+      builder: (context, state) => TransactionFormScreen(
+        transactionId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
       path: '/categories',
       builder: (context, state) => const CategoriesListScreen(),
     ),

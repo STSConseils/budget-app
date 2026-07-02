@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:budget_app/core/format.dart';
 import 'package:budget_app/core/theme.dart';
 import 'package:budget_app/repositories/providers.dart';
@@ -26,10 +27,7 @@ class CategoryDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          category?.nom ?? '',
-          style: AppTextStyles.sectionTitle,
-        ),
+        title: Text(category?.nom ?? '', style: AppTextStyles.sectionTitle),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,91 +60,105 @@ class CategoryDetailScreen extends ConsumerWidget {
                 ? Center(
                     child: Text(
                       'Aucune transaction ce mois-ci.',
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.muted, fontSize: 14),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.muted,
+                        fontSize: 14,
+                      ),
                     ),
                   )
                 : ListView.separated(
                     itemCount: txs.length,
-                    separatorBuilder: (_, index) =>
-                        const Divider(height: 1, color: AppColors.hairlineLight),
+                    separatorBuilder: (_, index) => const Divider(
+                      height: 1,
+                      color: AppColors.hairlineLight,
+                    ),
                     itemBuilder: (_, i) {
                       final t = txs[i];
                       final authorName =
                           memberMap[t.auteurId]?.displayName ?? t.auteurId;
-                      final hasFiscal = t.categorieFiscale != null &&
+                      final hasFiscal =
+                          t.categorieFiscale != null &&
                           t.categorieFiscale != 'non_deductible';
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Col gauche
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    t.note ?? '—',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${formatDateShortFr(t.date)} · $authorName',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontSize: 11,
-                                      color: AppColors.muted,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            // Col droite
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '${formatCHF(t.montant)} CHF',
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures(),
-                                    ],
-                                  ),
-                                ),
-                                if (hasFiscal) ...[
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.hairlineLight,
+                      return InkWell(
+                        onTap: () => context.push('/transactions/${t.id}/edit'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Col gauche
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t.note ?? '—',
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    child: Text(
-                                      fiscalPosteLabel(t.categorieFiscale!) ??
-                                          t.categorieFiscale!,
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${formatDateShortFr(t.date)} · $authorName',
                                       style: AppTextStyles.body.copyWith(
-                                        fontSize: 10,
+                                        fontSize: 11,
                                         color: AppColors.muted,
                                       ),
                                     ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Col droite
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${formatCHF(t.montant)} CHF',
+                                    style: AppTextStyles.body.copyWith(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
+                                    ),
                                   ),
+                                  if (hasFiscal) ...[
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColors.hairlineLight,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        fiscalPosteLabel(t.categorieFiscale!) ??
+                                            t.categorieFiscale!,
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 10,
+                                          color: AppColors.muted,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
-                              ],
-                            ),
-                          ],
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: AppColors.muted,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

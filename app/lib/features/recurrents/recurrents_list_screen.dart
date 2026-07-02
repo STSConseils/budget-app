@@ -29,20 +29,22 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
     final allItems = ref.watch(recurrentsAvecStatutProvider);
     final cats = ref.watch(categoriesStreamProvider).valueOrNull ?? [];
     final catMap = {for (final c in cats) c.id: c};
-    final members =
-        ref.watch(householdMembersProvider).valueOrNull ?? [];
+    final members = ref.watch(householdMembersProvider).valueOrNull ?? [];
 
-    final toPayItems = allItems
-        .where((e) =>
-            e.info.status == RecurrentStatus.aPayer ||
-            e.info.status == RecurrentStatus.enRetard)
+    final items = allItems.where((e) => e.rec.sens == _filter).toList();
+
+    final toPayItems = items
+        .where(
+          (e) =>
+              e.info.status == RecurrentStatus.aPayer ||
+              e.info.status == RecurrentStatus.enRetard,
+        )
         .toList();
     final toPayCount = toPayItems.length;
-    final toPayTotal =
-        toPayItems.fold(0.0, (sum, e) => sum + e.rec.montant);
-
-    final items =
-        allItems.where((e) => e.rec.sens == _filter).toList();
+    final toPayTotal = toPayItems.fold(0.0, (sum, e) => sum + e.rec.montant);
+    final toPayLabel = _filter == Sens.depense
+        ? 'À PAYER CE MOIS'
+        : 'À PERCEVOIR CE MOIS';
 
     return Scaffold(
       appBar: AppBar(
@@ -73,13 +75,11 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('À PAYER CE MOIS',
-                            style: AppTextStyles.sectionTitle),
+                        Text(toPayLabel, style: AppTextStyles.sectionTitle),
                         const SizedBox(height: 6),
                         Text(
                           '$toPayCount',
-                          style: AppTextStyles.amount
-                              .copyWith(fontSize: 18),
+                          style: AppTextStyles.amount.copyWith(fontSize: 18),
                         ),
                       ],
                     ),
@@ -95,13 +95,11 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('MONTANT',
-                              style: AppTextStyles.sectionTitle),
+                          Text('MONTANT', style: AppTextStyles.sectionTitle),
                           const SizedBox(height: 6),
                           AmountText(
                             toPayTotal,
-                            style: AppTextStyles.amount
-                                .copyWith(fontSize: 18),
+                            style: AppTextStyles.amount.copyWith(fontSize: 18),
                           ),
                         ],
                       ),
@@ -141,8 +139,9 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
                 ? Center(
                     child: Text(
                       'Aucun récurrent.',
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.muted),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.muted,
+                      ),
                     ),
                   )
                 : ListView.separated(
@@ -156,9 +155,8 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
                       return _RecurrentTile(
                         item: item,
                         catMap: catMap,
-                        onEdit: () => context.push(
-                          '/recurrents/${item.rec.id}/edit',
-                        ),
+                        onEdit: () =>
+                            context.push('/recurrents/${item.rec.id}/edit'),
                         onConfirmPay: () => _showConfirmPaymentSheet(
                           context,
                           item.rec,
@@ -187,9 +185,7 @@ class _RecurrentsListScreenState extends ConsumerState<RecurrentsListScreen> {
       isScrollControlled: true,
       backgroundColor: AppColors.background,
       builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: _ConfirmPaymentSheet(
           rec: rec,
           info: info,
@@ -240,10 +236,10 @@ class _TypePill extends StatelessWidget {
 // ─── Tile récurrent ──────────────────────────────────────────────────────────
 
 String _freqLabel(Frequence f) => switch (f) {
-      Frequence.mensuel => 'mensuel',
-      Frequence.trimestriel => 'trimestriel',
-      Frequence.annuel => 'annuel',
-    };
+  Frequence.mensuel => 'mensuel',
+  Frequence.trimestriel => 'trimestriel',
+  Frequence.annuel => 'annuel',
+};
 
 class _RecurrentTile extends StatelessWidget {
   const _RecurrentTile({
@@ -265,15 +261,18 @@ class _RecurrentTile extends StatelessWidget {
     );
     switch (info.status) {
       case RecurrentStatus.paye:
-        return Text('PAYÉ',
-            style: badgeStyle.copyWith(color: AppColors.muted));
+        return Text('PAYÉ', style: badgeStyle.copyWith(color: AppColors.muted));
       case RecurrentStatus.aPayer:
         final n = info.joursRestants ?? 0;
-        return Text('DANS $n J',
-            style: badgeStyle.copyWith(color: AppColors.ink));
+        return Text(
+          'DANS $n J',
+          style: badgeStyle.copyWith(color: AppColors.ink),
+        );
       case RecurrentStatus.enRetard:
-        return Text('EN RETARD',
-            style: badgeStyle.copyWith(color: AppColors.accent));
+        return Text(
+          'EN RETARD',
+          style: badgeStyle.copyWith(color: AppColors.accent),
+        );
       case RecurrentStatus.inactif:
         return const SizedBox.shrink();
     }
@@ -284,7 +283,8 @@ class _RecurrentTile extends StatelessWidget {
     final rec = item.rec;
     final info = item.info;
     final catName = catMap[rec.categorieId]?.nom ?? '';
-    final showConfirm = info.status == RecurrentStatus.aPayer ||
+    final showConfirm =
+        info.status == RecurrentStatus.aPayer ||
         info.status == RecurrentStatus.enRetard;
 
     return InkWell(
@@ -315,7 +315,9 @@ class _RecurrentTile extends StatelessWidget {
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           color: AppColors.hairlineLight,
                           child: Text(
                             'INACTIF',
@@ -363,7 +365,9 @@ class _RecurrentTile extends StatelessWidget {
                     onTap: onConfirmPay,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       color: const Color.fromARGB(255, 241, 5, 5),
                       child: Text(
                         'Confirmer payé',
@@ -405,8 +409,7 @@ class _ConfirmPaymentSheet extends ConsumerStatefulWidget {
       _ConfirmPaymentSheetState();
 }
 
-class _ConfirmPaymentSheetState
-    extends ConsumerState<_ConfirmPaymentSheet> {
+class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
   late String _rawAmount;
   late DateTime _date;
   String? _auteurId;
@@ -421,7 +424,8 @@ class _ConfirmPaymentSheetState
         ? m.toInt().toString()
         : m.toStringAsFixed(2);
     _date = DateTime.now();
-    _auteurId = widget.rec.personneId ??
+    _auteurId =
+        widget.rec.personneId ??
         ref.read(currentUserProvider)?.id ??
         (widget.members.isNotEmpty ? widget.members.first.id : null);
   }
@@ -465,16 +469,15 @@ class _ConfirmPaymentSheetState
       return;
     }
     if (_auteurId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sélectionner un auteur.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Sélectionner un auteur.')));
       return;
     }
 
     setState(() => _saving = true);
     try {
-      final household =
-          await ref.read(currentHouseholdProvider.future);
+      final household = await ref.read(currentHouseholdProvider.future);
       if (!mounted || household == null) return;
 
       final cat = widget.catMap[widget.rec.categorieId];
@@ -550,8 +553,7 @@ class _ConfirmPaymentSheetState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('CONFIRMER LE PAIEMENT',
-                style: AppTextStyles.sectionTitle),
+            Text('CONFIRMER LE PAIEMENT', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 12),
 
             // Récap
@@ -592,8 +594,9 @@ class _ConfirmPaymentSheetState
                         children: [
                           TextSpan(
                             text: ' CHF',
-                            style: AppTextStyles.body
-                                .copyWith(color: AppColors.muted),
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.muted,
+                            ),
                           ),
                         ],
                       ),
@@ -615,8 +618,9 @@ class _ConfirmPaymentSheetState
                     Text('Date du paiement', style: AppTextStyles.body),
                     Text(
                       formatDateShortFr(_date),
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.muted),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.muted,
+                      ),
                     ),
                   ],
                 ),
@@ -637,8 +641,8 @@ class _ConfirmPaymentSheetState
                       child: _pillButton(
                         label: widget.members[i].displayName,
                         selected: _auteurId == widget.members[i].id,
-                        onTap: () => setState(
-                            () => _auteurId = widget.members[i].id),
+                        onTap: () =>
+                            setState(() => _auteurId = widget.members[i].id),
                       ),
                     ),
                   ],
@@ -653,21 +657,20 @@ class _ConfirmPaymentSheetState
               decoration: InputDecoration(
                 hintText: 'Note (optionnel)',
                 hintStyle: AppTextStyles.body.copyWith(
-                    color: AppColors.muted, fontSize: 14),
+                  color: AppColors.muted,
+                  fontSize: 14,
+                ),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
-                  borderSide:
-                      BorderSide(color: AppColors.hairlineStrong),
+                  borderSide: BorderSide(color: AppColors.hairlineStrong),
                 ),
                 enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
-                  borderSide:
-                      BorderSide(color: AppColors.hairlineStrong),
+                  borderSide: BorderSide(color: AppColors.hairlineStrong),
                 ),
                 focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
-                  borderSide:
-                      BorderSide(color: AppColors.ink, width: 1.5),
+                  borderSide: BorderSide(color: AppColors.ink, width: 1.5),
                 ),
                 filled: true,
                 fillColor: Colors.white,

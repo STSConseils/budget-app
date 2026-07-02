@@ -48,6 +48,11 @@ class TransactionsRepository {
     return records.map(TransactionModel.fromRecord).toList();
   }
 
+  Future<TransactionModel> getById(String id) async {
+    final record = await pb.collection('transactions').getOne(id);
+    return TransactionModel.fromRecord(record);
+  }
+
   Future<TransactionModel> create(TransactionModel t) async {
     final record =
         await pb.collection('transactions').create(body: t.toJson());
